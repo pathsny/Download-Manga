@@ -17,7 +17,7 @@ def login
   page1 = AGENT.get "http://www.mangatraders.com"
   page1.forms[1]["login-user"] = USER_INFO[:user]
   page1.forms[1]["login-pass"] = USER_INFO[:pass]
-  page1.forms[1].submit.body
+  page1.forms[1].submit
 end  
 
 file_doc = Nokogiri::XML(AGENT.get("http://www.mangatraders.com/manga/series/#{ARGV[0]}/files").body)
