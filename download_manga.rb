@@ -8,17 +8,16 @@ include ActionView::Helpers::NumberHelper
 require 'yaml'
 
 raise "series id missing " unless ARGV[0]
-user_info = YAML.load_file(File.expand_path('../user_info.yml', __FILE__))
+USER_INFO = YAML.load_file(File.expand_path('../user_info.yml', __FILE__))
 
 AGENT = Mechanize.new
 AGENT.pluggable_parser['application/zip'] = Mechanize::Download
 
 def login
   page1 = AGENT.get "http://www.mangatraders.com"
-  page1.forms[1]["login-user"] = user_info[:user]
-  page1.forms[1]["login-pass"] = user_info[:pass]
-  page1.forms[1].submit 
-rescue
+  page1.forms[1]["login-user"] = USER_INFO[:user]
+  page1.forms[1]["login-pass"] = USER_INFO[:pass]
+  page1.forms[1].submit.body
 end  
 
 file_doc = Nokogiri::XML(AGENT.get("http://www.mangatraders.com/manga/series/#{ARGV[0]}/files").body)
