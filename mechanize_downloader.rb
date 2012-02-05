@@ -43,7 +43,8 @@ class Mechanize
       f.close unless (file.is_a?(IO) or file.is_a?(Tempfile))
     }
 
-    pbar = ProgressBar.new("Loading",total)
+    pbar = ProgressBar.new("Downloading: ",total)
+    pbar.file_transfer_mode
     while  total > length
       sleep 1
       pbar.set(length)
