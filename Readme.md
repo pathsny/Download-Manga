@@ -6,7 +6,9 @@ Download script for Mangatraders.com
  You also need bundler
 		 
 		gem install bundler
-    bundle install
+		bundle install
+		copy user_info.yml.bak to user_info.yml and put in your username and password
+		
 
 ### To Use:
  ruby download_manga.rb <seriesID> 
