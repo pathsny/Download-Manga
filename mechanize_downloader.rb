@@ -25,7 +25,8 @@ class Mechanize
     while true
       res = cli.head(url)
       break unless res.status == 302 # HTTP::HTTPFound
-      url = URI.parse(URI.encode(res.header["Location"][0].to_s))
+      parser = URI::Parser.new(:UNRESERVED=>URI::PATTERN::UNRESERVED+'\[\]')
+      url = parser.parse(URI.encode(res.header["Location"][0].to_s))
     end
 
     content_length = cli.head(url).header["Content-Length"]

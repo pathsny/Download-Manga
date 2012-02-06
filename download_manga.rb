@@ -7,8 +7,12 @@ require File.expand_path('../mechanize_downloader', __FILE__)
 include ActionView::Helpers::NumberHelper
 require 'yaml'
 
-raise "series id missing " unless ARGV[0]
+seriesID = (defined? SERIES_ID) ? SERIES_ID : ARGV[0]
+raise "series id missing " unless seriesID
 USER_INFO = YAML.load_file(File.expand_path('../user_info.yml', __FILE__))
+require 'openssl'
+OpenSSL::SSL::VERIFY_PEER = OpenSSL::SSL::VERIFY_NONE
+I_KNOW_THAT_OPENSSL_VERIFY_PEER_EQUALS_VERIFY_NONE_IS_WRONG = nil
 
 AGENT = Mechanize.new
 AGENT.pluggable_parser['application/zip'] = Mechanize::Download
@@ -20,18 +24,24 @@ def login
   page1.forms[1].submit
 end  
 
-file_doc = Nokogiri::XML(AGENT.get("http://www.mangatraders.com/manga/series/#{ARGV[0]}/files").body)
-files = file_doc.xpath('//file').map{|f| [f.xpath('@id').text, f.xpath('file_disp').text, f.xpath('file_size').text]}
+file_doc = Nokogiri::XML(AGENT.get("http://www.mangatraders.com/manga/series/#{seriesID}/files").body)
+
+files = file_doc.xpath('//file').map{|f| {
+  id: f.xpath('@id').text,
+  size: f.xpath('file_size').text,
+  userid: f.xpath('userid').text
+  }}
 files.each do |file|
   login
-  AGENT.request_headers['Referer']="Referer:http://www.mangatraders.com/view/file/#{file[0]}"
-  url = "http://www.mangatraders.com/download/file/#{file[0]}"
+  AGENT.request_headers['Referer']="http://www.mangatraders.com/view/file/#{file[:id]}"
+  AGENT.user_agent = Mechanize::AGENT_ALIASES['Mac Mozilla']  
+  url = "http://www.mangatraders.com/download/file/#{file[:id]}"
   header = AGENT.head(url)
-  filename = "#{file[1]}#{File.extname(header.extract_filename)}"
+  filename = header.extract_filename.sub("#{file[:userid]}-",'')
   next if File.exist? filename
   puts "yaaargh getting #{filename}"
   sleep 10
   AGENT.download(url, filename)
   fsize = number_to_human_size(File.size(filename), :strip_insignificant_zeros => false, :significant => false, :precision => 2).sub(' ', '')
-  puts "expected #{file[2]} but got #{fsize}" unless fsize.strip == file[2].strip
+  puts "expected #{file[:size]} but got #{fsize}" unless fsize.strip == file[:size].strip
 end

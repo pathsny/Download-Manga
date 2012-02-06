@@ -17,6 +17,7 @@ GEM
     activesupport (3.2.1)
       i18n (~> 0.6)
       multi_json (~> 1.0)
+    always_verify_ssl_certificates (0.3.0)
     builder (3.0.0)
     domain_name (0.5.2)
       unf (~> 0.0.3)
@@ -58,6 +59,7 @@ PLATFORMS
 
 DEPENDENCIES
   actionpack
+  always_verify_ssl_certificates
   httpclient
   mechanize
   nokogiri

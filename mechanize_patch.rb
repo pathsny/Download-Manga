@@ -21,8 +21,9 @@ class Mechanize::HTTP::Agent
 
     from_uri = page.uri
     @history.push(page, from_uri)
-    new_uri = from_uri + URI.encode(response['Location'].to_s)
-
+    parser = URI::Parser.new(:UNRESERVED=>URI::PATTERN::UNRESERVED+'\[\]')
+    new_uri = from_uri + parser.parse(URI.encode(response['Location'].to_s))
+    
     fetch new_uri, redirect_method, {}, [], referer, redirects + 1
   end
 end  
